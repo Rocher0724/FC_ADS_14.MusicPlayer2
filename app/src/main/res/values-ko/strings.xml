@@ -5,13 +5,13 @@
     <string name="navigation_drawer_close">네비게이션 메뉴 닫기</string>
 
     <string name="action_settings">설정</string>
-    <string name="action_mylist">내 목록</string>
     <string name="action_search">검색</string>
+    <string name="action_sort">정렬</string>
 
-    <string name="menu_recent">최근 플레이</string>
-    <string name="menu_artists">가수</string>
-    <string name="menu_genre">장르</string>
-    <string name="menu_album">앨범</string>
-    <string name="menu_songs">곡</string>
+    <string name="menu_library">음악</string>
+    <string name="menu_sleep">수면설정</string>
+    <string name="menu_nowplaying">재생중인 리스트</string>
+
+    <string name="menu_playlist">내 리스트</string>
 
 </resources>

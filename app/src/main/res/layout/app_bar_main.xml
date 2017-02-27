@@ -31,41 +31,102 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:id="@+id/mainLo"
-        android:layout_height="300dp">
+        android:layout_height="400dp">
 
-        <!--<include-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--layout="@layout/toolbar"-->
-            <!--android:layout_marginBottom="20dp"-->
-            <!--android:id="@+id/asd" />-->
-
-        <android.support.design.widget.TabLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:id="@+id/tab"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
-
-
-        <android.support.v4.view.ViewPager
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/viewPager"
-            android:layout_below="@id/tab"/>
+            android:id="@+id/libraryLO"
+            android:visibility="gone">
+
+            <android.support.design.widget.TabLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:id="@+id/tab"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
+
+
+            <android.support.v4.view.ViewPager
+                android:layout_width="match_parent"
+                android:id="@+id/viewPager"
+                android:layout_below="@id/tab"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/detailLO"
+            android:visibility="visible">
+
+            <android.support.v7.widget.Toolbar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/colorPrimary"
+                android:theme="?attr/actionBarTheme"
+                android:minHeight="?attr/actionBarSize"
+                android:id="@+id/detailToolbar"
+                android:paddingLeft="0dp"
+                android:paddingRight="0dp">
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:layout_height="wrap_content"
+                        app:srcCompat="?attr/actionModeCloseDrawable"
+                        android:id="@+id/imageView2"
+                        android:layout_marginLeft="10dp"
+                        android:layout_width="wrap_content"
+                        android:layout_marginTop="5dp" />
+
+                    <TextView
+                        android:text="TextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/tvSelected"
+                        android:layout_weight="0.15"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                        android:layout_marginLeft="20dp" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:srcCompat="@android:drawable/ic_menu_edit"
+                        android:id="@+id/imageView3"
+                        android:layout_marginRight="15dp" />
+                </LinearLayout>
+            </android.support.v7.widget.Toolbar>
+
+            <android.support.v7.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/selectedList" />
+        </LinearLayout>
 
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:id="@+id/playerLo"
-        android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_height="100dp">
         <!--android:layout_alignParentBottom="true"-->
         <!--android:layout_alignParentLeft="true"-->
         <!--android:layout_alignParentStart="true">-->
 
+        <Button
+            android:text="Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/button"
+            android:layout_weight="1" />
     </LinearLayout>
+
 
 </LinearLayout>

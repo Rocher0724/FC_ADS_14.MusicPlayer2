@@ -1,44 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/menu_album"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="@string/menu_album" />
-        <item
-            android:id="@+id/menu_songs"
-            android:icon="@android:drawable/ic_media_play"
-            android:title="@string/menu_songs" />
-        <item
-            android:id="@+id/menu_artists"
+            android:id="@+id/menu_library"
             android:icon="@android:drawable/ic_menu_sort_by_size"
-            android:title="@string/menu_artists" />
+            android:title="@string/menu_library" />
         <item
-            android:id="@+id/menu_genre"
-            android:icon="@drawable/ic_menu_share"
-            android:title="@string/menu_genre" />
+            android:id="@+id/menu_nowplaying"
+            android:icon="@android:drawable/ic_media_play"
+            android:title="@string/menu_nowplaying" />
         <item
-            android:id="@+id/menu_recent"
-            android:icon="?android:attr/actionModeCopyDrawable"
-            android:title="@string/menu_recent" />
+            android:id="@+id/menu_playlist"
+            android:icon="@android:drawable/ic_menu_myplaces"
+            android:title="@string/menu_playlist" />
+        <item
+            android:id="@+id/menu_sleep"
+            android:icon="@android:drawable/ic_lock_idle_alarm"
+            android:title="@string/menu_sleep" />
+        <item
+            android:id="@+id/action_settings"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="@string/action_settings" />
+
     </group>
 
-    <item android:title="menu">
-        <menu>
-            <item
-                android:id="@+id/action_settings"
-                android:icon="@drawable/ic_menu_share"
-                android:title="@string/action_settings" />
-            <item
-                android:id="@+id/action_mylist"
-                android:icon="@drawable/ic_menu_send"
-                android:title="@string/action_mylist" />
-            <item
-                android:id="@+id/action_search"
-                android:icon="@drawable/ic_menu_send"
-                android:title="@string/action_search" />
-        </menu>
-    </item>
+    <!--<item android:title="menu">-->
+        <!--<menu>-->
+            <!--<item-->
+                <!--android:id="@+id/action_settings"-->
+                <!--android:icon="@drawable/ic_menu_share"-->
+                <!--android:title="@string/action_settings" />-->
+        <!--</menu>-->
+    <!--</item>-->
 
 </menu>

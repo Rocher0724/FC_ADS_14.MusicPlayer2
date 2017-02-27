@@ -3,6 +3,7 @@ package choongyul.android.com.soundplayer.util.fragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,7 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-
+        Log.e("fiveFragment","==========111===========================");
         return fragments.get(position);
     }
 
