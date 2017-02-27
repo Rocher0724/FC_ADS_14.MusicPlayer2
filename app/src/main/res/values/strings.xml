@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">SoundPlayer</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="action_mylist">My favorite</string>
+    <string name="action_search">Search</string>
+
+    <string name="menu_recent">recent play</string>
+    <string name="menu_artists">Artists</string>
+    <string name="menu_genre">Genre</string>
+    <string name="menu_album">Albums</string>
+    <string name="menu_songs">Songs</string>
+
+</resources>
