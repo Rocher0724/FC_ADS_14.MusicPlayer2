@@ -19,7 +19,7 @@ public class Music extends Common{
     private String genre_id;
     private Uri album_image_uri;
     private String duration; // 길이
-    Uri uri;
+    Uri music_uri;
     // add info
     private int order; // 순서
     private boolean favor; // 선택된 음악만 넣을 때?
@@ -138,12 +138,13 @@ public class Music extends Common{
         this.title = title;
     }
 
-    public Uri getUri() {
-        return uri;
+    @Override
+    public Uri getMusic_uri() {
+        return music_uri;
     }
 
-    public void setUri(Uri uri) {
-        this.uri = uri;
+    public void setMusic_uri(Uri uri) {
+        this.music_uri = uri;
     }
 
     private String artist_id;

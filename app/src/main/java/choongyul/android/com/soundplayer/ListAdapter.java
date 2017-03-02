@@ -20,6 +20,8 @@ import choongyul.android.com.soundplayer.domain.Common;
 import choongyul.android.com.soundplayer.domain.Music;
 import choongyul.android.com.soundplayer.util.fragment.PagerAdapter;
 
+import static choongyul.android.com.soundplayer.App.mainObserverFlag;
+
 
 public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 
@@ -27,14 +29,21 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     private String flag;
     private int item_layout_id;
     Context context;
-    MainActivity maina;
+    MainActivity main;
     Server server = new Server();
+
 
 
     public ListAdapter(List<?> datas, String flag, Context context) {
         this.context = context;
         this.datas = datas;
-        maina = (MainActivity) context;
+
+        if(mainObserverFlag) {
+            Log.e("ListAdapter 생성자","main.observer는 몇번실행될까");
+            main = (MainActivity) context;
+            main.observer(server);
+            mainObserverFlag = false;
+        }
 
         this.flag = flag;
         switch (flag) {
@@ -95,10 +104,10 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         TextView tvThick;
         TextView tvThin;
 
-        // 플레이어
-        ImageView imgAlbum_player;
-        TextView tvThick_player;
-        TextView tvThin_player;
+        // 플레이어 - 메인에서 해줘야하지않나 이거
+//        ImageView imgAlbum_player;
+//        TextView tvThick_player;
+//        TextView tvThin_player;
 
 
 

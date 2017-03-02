@@ -86,7 +86,7 @@ public class DataLoader {
                 music.setYear       (getString(cursor, PROJ[9]));
 
                 music.setAlbum_image_uri(getAlbumImageUri(music.getAlbum_id()));
-                music.setUri(getMusicUri(music.getId()));
+                music.setMusic_uri(getMusicUri(music.getId()));
 
                 musicDatas.add(music);
             }
@@ -127,6 +127,7 @@ public class DataLoader {
                 artist.setArtist_key(getString(cursor, PROJECT[4]));
 
                 artist.setTitle(getTitleByArtistId(artist.getId()));
+                artist.setMusic_uri(getMusicUriByArtistId(artist.getId()));
                 artist.setDuration(getDurationByArtistId(artist.getId()));
                 artist.setAlbum_id(getAlbumIdByArtistId(artist.getId()));
                 artist.setAlbum_image_uri(getAlbumUriByArtistId(artist.getId()));
@@ -141,6 +142,15 @@ public class DataLoader {
 
     private static String getGenre() {
 //        MediaStore.Audio.Genres.getContentUriForAudioId();
+        return null;
+    }
+
+    private static Uri getMusicUriByArtistId(String artist_id) {
+        for( Music music : musicDatas) {
+            if( music.getId() == artist_id) {
+                return music.getMusic_uri();
+            }
+        }
         return null;
     }
 

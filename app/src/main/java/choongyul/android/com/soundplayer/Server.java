@@ -13,11 +13,11 @@ import choongyul.android.com.soundplayer.domain.Common;
 
 public class Server {
 
-    List<Observer> observers = new ArrayList<Observer>();
+    List<Observer> observers = new ArrayList<>();
     // 데이터 저장소
     private int position = -1;
     List<?> datas;
-    Uri musicUri;
+//    Uri musicUri;
 
     // 옵저버 저장소에 옵저버를 저장하는 역할
     public void addObserver(Observer observer) {
@@ -37,9 +37,14 @@ public class Server {
         // 데이터 저장소에 데이터를 반영해준다.
         this.position = position;
         this.datas = datas;
+//        this.musicUri = musicUri;
 
         // 전달해야 하는 메시지가 발생 하면 notification 으로 모든 옵저버에게 알린다
         notification();
+    }
+
+    public int getPosition() {
+        return position;
     }
 }
 

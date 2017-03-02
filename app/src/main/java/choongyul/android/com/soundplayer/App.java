@@ -51,4 +51,7 @@ public class App {
             player = null;
         }
     }
+
+    //서버등록 플래그
+    public static boolean mainObserverFlag = true;
 }

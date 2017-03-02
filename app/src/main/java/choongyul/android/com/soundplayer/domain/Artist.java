@@ -24,7 +24,15 @@ public class Artist extends Common {
     private Uri album_image_uri;
     private Uri music_uri;
 
+    @Override
+    public Uri getMusic_uri() {
+        return music_uri;
+    }
 
+
+    public void setMusic_uri(Uri music_uri) {
+        this.music_uri = music_uri;
+    }
 
     public String getDuration() {
         return Duration;

@@ -11,6 +11,7 @@ public abstract class Common {
     public abstract String getThickTV();
     public abstract String getThinTV();
     public abstract Uri getImageUri();
+    public abstract Uri getMusic_uri();
 
 
 }
