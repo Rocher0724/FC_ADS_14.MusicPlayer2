@@ -17,12 +17,18 @@ public class App {
     public static final String ACTION_PAUSE = "choongyul.android.com.soundplayer.action.pause";
     public static final String ACTION_RESTART = "choongyul.android.com.soundplayer.action.restart";
     public static final String ACTION_STOP = "choongyul.android.com.soundplayer.action.stop";
+//    public static final String ACTION_REWIND = "choongyul.android.com.soundplayer.action.rewind";
+//    public static final String ACTION_FAST_FORWARD = "choongyul.android.com.soundplayer.action.fast.foward";
+    public static final String ACTION_NEXT = "choongyul.android.com.soundplayer.action.next";
+    public static final String ACTION_PREVIOUS = "choongyul.android.com.soundplayer.action.previous";
+
+    public static final String ARG_POSITION = "position";
+    public static final String ARG_LIST_TYPE = "list-type";
+
+
     public static boolean APP_RESTART = false;
     // 플레이어 상태 플래그
-    public static final int PLAY = 0;
-    public static final int PAUSE = 1;
-    public static final int STOP = 2;
-    public static int playStatus = STOP;
+    public static String playStatus = "";
     public static int position = 0; // 현재 음악 위치
 
 
@@ -54,4 +60,15 @@ public class App {
 
     //서버등록 플래그
     public static boolean mainObserverFlag = true;
+
+
+//
+//    // 서비스플레이 액션 정의
+//    public static final String ACTION_PLAY = "choongyul.android.com.mediaplayerservice.play";
+//    public static final String ACTION_PAUSE = "choongyul.android.com.mediaplayerservice.pause";
+//    public static final String ACTION_REWIND = "choongyul.android.com.mediaplayerservice.rewind";
+//    public static final String ACTION_FAST_FORWARD = "choongyul.android.com.mediaplayerservice.fast.foward";
+//    public static final String ACTION_NEXT = "choongyul.android.com.mediaplayerservice.next";
+//    public static final String ACTION_PREVIOUS = "choongyul.android.com.mediaplayerservice.previous";
+//    public static final String ACTION_STOP = "choongyul.android.com.mediaplayerservice.stop";
 }

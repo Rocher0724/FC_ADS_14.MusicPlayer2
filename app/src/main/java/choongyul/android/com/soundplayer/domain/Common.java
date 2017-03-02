@@ -12,6 +12,10 @@ public abstract class Common {
     public abstract String getThinTV();
     public abstract Uri getImageUri();
     public abstract Uri getMusic_uri();
+    public abstract String getTitle();
+    public abstract String getArtist();
+
+
 
 
 }

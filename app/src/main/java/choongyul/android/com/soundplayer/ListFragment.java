@@ -15,10 +15,12 @@ import choongyul.android.com.soundplayer.domain.Music;
 
 import java.util.List;
 
+import static choongyul.android.com.soundplayer.App.ARG_LIST_TYPE;
+
 public class ListFragment extends Fragment {
 
     private static final String ARG_COLUMN_COUNT = "column-count";
-    private static final String ARG_LIST_TYPE = "list-type";
+
     public static final String TYPE_SONG = "SONG";
     public static final String TYPE_ARTIST = "ARTIST";
     public static final String TYPE_ALBUM = "ALBUM";

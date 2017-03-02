@@ -17,6 +17,7 @@ public class Server {
     // 데이터 저장소
     private int position = -1;
     List<?> datas;
+    private String typeFlag = "";
 //    Uri musicUri;
 
     // 옵저버 저장소에 옵저버를 저장하는 역할
@@ -33,10 +34,11 @@ public class Server {
     }
 
     // student가 사용하는 메시지 전달함수
-    public void sendMessage(int position , List<?> datas) {
+    public void sendMessage(int position, List<?> datas, String flag) {
         // 데이터 저장소에 데이터를 반영해준다.
         this.position = position;
         this.datas = datas;
+        this.typeFlag = flag;
 //        this.musicUri = musicUri;
 
         // 전달해야 하는 메시지가 발생 하면 notification 으로 모든 옵저버에게 알린다
@@ -45,6 +47,10 @@ public class Server {
 
     public int getPosition() {
         return position;
+    }
+
+    public String getTypeFlag() {
+        return typeFlag;
     }
 }
 

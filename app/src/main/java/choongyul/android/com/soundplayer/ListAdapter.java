@@ -135,7 +135,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
             box.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    server.sendMessage(position, datas);
+                    server.sendMessage(position, datas, flag);
                 }
             });
         }

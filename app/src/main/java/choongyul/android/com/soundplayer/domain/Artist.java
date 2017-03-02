@@ -42,8 +42,14 @@ public class Artist extends Common {
         Duration = duration;
     }
 
+    @Override
     public String getTitle() {
         return title;
+    }
+
+    @Override
+    public String getArtist() {
+        return artist;
     }
 
     public void setTitle(String title) {

@@ -90,6 +90,7 @@ public class Music extends Common{
         this.album_image_uri = album_image_uri;
     }
 
+    @Override
     public String getArtist() {
         return artist;
     }
@@ -130,6 +131,7 @@ public class Music extends Common{
         this.order = order;
     }
 
+    @Override
     public String getTitle() {
         return title;
     }

@@ -30,6 +30,8 @@ import android.widget.Toast;
 import java.util.List;
 
 import choongyul.android.com.soundplayer.domain.Common;
+import choongyul.android.com.soundplayer.domain.Music;
+import choongyul.android.com.soundplayer.util.TimeUtil;
 import choongyul.android.com.soundplayer.util.fragment.PagerAdapter;
 
 import static android.view.View.GONE;
@@ -37,7 +39,10 @@ import static android.view.View.VISIBLE;
 import static choongyul.android.com.soundplayer.App.ACTION_PAUSE;
 import static choongyul.android.com.soundplayer.App.ACTION_PLAY;
 import static choongyul.android.com.soundplayer.App.ACTION_RESTART;
+import static choongyul.android.com.soundplayer.App.ACTION_STOP;
 import static choongyul.android.com.soundplayer.App.APP_RESTART;
+import static choongyul.android.com.soundplayer.App.ARG_LIST_TYPE;
+import static choongyul.android.com.soundplayer.App.ARG_POSITION;
 import static choongyul.android.com.soundplayer.App.PAUSE;
 import static choongyul.android.com.soundplayer.App.PLAY;
 import static choongyul.android.com.soundplayer.App.STOP;
@@ -59,16 +64,23 @@ public class MainActivity extends AppCompatActivity
     ImageView imgAlbum_player, imgPlay_player, imgff_player, imgVol_player;
     TextView tvThick_Player,tvThin_Player, tvDurationNow_player, tvDurationMax;
     SeekBar seekBar_player;
+    // 음악데이터
     List<?> datas;
     int position;
     Server server;
     Thread thread;
     Intent service;
+    String list_type = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if( savedInstanceState != null ) {
+            return;
+        }
+
         checkVersion(REQ_PERMISSION);
         // 레이아웃 가져오기
         libraryLO = (LinearLayout) findViewById(R.id.libraryLO);
@@ -89,7 +101,7 @@ public class MainActivity extends AppCompatActivity
         imgPlay_player.setOnClickListener(clickListener);
         imgff_player.setOnClickListener(clickListener);
         imgVol_player.setOnClickListener(clickListener);
-        seekBar_player.setOnSeekBarChangeListener(seekBarListener);
+//        seekBar_player.setOnSeekBarChangeListener(seekBarListener);
 
 
         // 서비스 설정
@@ -147,11 +159,14 @@ public class MainActivity extends AppCompatActivity
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(viewPager));
 
+        if(playStatus == ACTION_PLAY) {
+            initPlayerSetting();
+        }
+
     }
 
     @Override
     public void onBackPressed() {
-//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -222,6 +237,7 @@ public class MainActivity extends AppCompatActivity
     public void update() {
         datas = server.datas;
         position = server.getPosition();
+        list_type = server.getTypeFlag();
         initPlayerSetting();
     }
 
@@ -229,7 +245,6 @@ public class MainActivity extends AppCompatActivity
     public void observer(Server server) {
         this.server = server;
         server.addObserver(this);
-
     }
 
     private void initPlayerSetting() {
@@ -239,7 +254,7 @@ public class MainActivity extends AppCompatActivity
             // 음악을 이동할 경우 플레이어에 세팅된 값을 해제한 후 로직을 실행한다.
             if (player != null ) { // player != null 뷰페이져 이동시에  // playStatus != PLAY 나갔다 들어왔을때
                 // 플레이 상태를 STOP으로 변경
-                playStatus = STOP;
+                playStatus = ACTION_STOP;
                 // 아이콘을 플레이 버튼으로 변경
                 player.release();
 
@@ -251,25 +266,21 @@ public class MainActivity extends AppCompatActivity
             playMusic();
 
         } else {
-
-
             APP_RESTART = false;
             initController();
             imgPlay_player.setImageResource(android.R.drawable.ic_media_pause);
             threadStart();
         }
 
-
-//            if (App.playStatus != PLAY) {
-//                playMusic();
-//            }
-
     }
 
     private void initPlayer() {
-        Uri musicUri = ((Common) datas.get(position)).getMusic_uri();
-        player = MediaPlayer.create(this, musicUri); // 시스템파일 - context, 음원파일Uri . player를 최초 실행시키는 방법이다.
-        player.setLooping(false);
+        // 서비스로 이관
+
+
+//        Uri musicUri = ((Common) datas.get(position)).getMusic_uri();
+//        player = MediaPlayer.create(this, musicUri); // 시스템파일 - context, 음원파일Uri . player를 최초 실행시키는 방법이다.
+//        player.setLooping(false);
         // 미디어 플레이어에 완료체크 리스너를 등록한다. Todo 일단 재생만 하려고 뺴놨다
 //        player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 //            @Override
@@ -280,12 +291,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void initController() {
+//        Music music = datas.get(position);
+//        tvDurationNow_player.setText("0");
+//        tvDurationMax.setText(TimeUtil.covertMiliToTime(player.getDuration()));
+//        seekBar_player.setMax(player.getDuration());
         // seekbar 최고길이 설정
         seekBar_player.setMax(player.getDuration());
         // seekbar 현재 값 0으로 설정
         seekBar_player.setProgress(0);
         // 전체 플레이 시간 설정
-        tvDurationMax.setText(covertMiliToTime(player.getDuration()));
+        tvDurationMax.setText(TimeUtil.covertMiliToTime(player.getDuration()));
         // 현재 플레이시간 0으로 설정
         tvDurationNow_player.setText("0");
     }
@@ -317,46 +332,52 @@ public class MainActivity extends AppCompatActivity
     }
 //    다음음악
     private void nextMusic() {
-        if (position < datas.size()) {
-            position = position+1;
-
-        } else {
-            position = 0;
-        }
-        initPlayerSetting();
+//        if (position < datas.size()) {
+//            position = position+1;
+//
+//        } else {
+//            position = 0;
+//        }
+//        initPlayerSetting();
     }
     // 음악플레이
     private void playMusic() {
         switch(playStatus) {
-            case STOP: // 현재상태 스탑
+            case ACTION_STOP: // 현재상태 스탑
                 playStart();
                 break;
-            case PLAY:
+            case ACTION_PLAY:
                 playPause();
                 break;
-            case PAUSE:
+            case ACTION_PAUSE:
                 playRestart();
                 break;
         }
     }
 
     private void playStart() {
-        playStatus = PLAY;
-        service.setAction(ACTION_PLAY);
-        startService(service);
-        imgPlay_player.setImageResource(android.R.drawable.ic_media_pause);
-        threadStart();
+        Intent intent = new Intent(this, SoundService.class);
+        intent.setAction(ACTION_PLAY);
+        intent.putExtra(ARG_POSITION, position);
+        intent.putExtra(ARG_LIST_TYPE,list_type);
+        startService(intent);
+
+//        playStatus = PLAY;
+//        service.setAction(ACTION_PLAY);
+//        startService(service);
+//        imgPlay_player.setImageResource(android.R.drawable.ic_media_pause);
+//        threadStart();
     }
     private void playPause() {
-        service.setAction(ACTION_PAUSE);
-        startService(service);
-        imgPlay_player.setImageResource(android.R.drawable.ic_media_play);
+//        service.setAction(ACTION_PAUSE);
+//        startService(service);
+//        imgPlay_player.setImageResource(android.R.drawable.ic_media_play);
     }
     private void playRestart() {
-        service.setAction(ACTION_RESTART);
-        startService(service);
-        player.seekTo(player.getCurrentPosition());
-        imgPlay_player.setImageResource(android.R.drawable.ic_media_pause);
+//        service.setAction(ACTION_RESTART);
+//        startService(service);
+//        player.seekTo(player.getCurrentPosition());
+//        imgPlay_player.setImageResource(android.R.drawable.ic_media_pause);
     }
     private void threadStart() {
         // sub thread를 생성해서 mediaplayer의 현재 포지션 값으로 seekbar를 변경해준다
@@ -366,11 +387,11 @@ public class MainActivity extends AppCompatActivity
         thread.start();
     }
 
-    @Override
-    protected void onDestroy() {
-        thread.interrupted();
-        super.onDestroy();
-    }
+//    @Override
+//    protected void onDestroy() {
+//        thread.interrupted();
+//        super.onDestroy();
+//    }
 
 //    ViewPager.OnPageChangeListener viewPagerListener = new ViewPager.OnPageChangeListener() {
 //        @Override
@@ -390,65 +411,57 @@ public class MainActivity extends AppCompatActivity
 //        }
 //    };
 
-    // seekbar를 이동하면 미디어가 이동하도록 변경
-    SeekBar.OnSeekBarChangeListener seekBarListener = new SeekBar.OnSeekBarChangeListener() {
-        boolean k;
-        int progress;
-        @Override
-        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            k = fromUser;
-            this.progress = progress;
-        }
+//    // seekbar를 이동하면 미디어가 이동하도록 변경
+//    SeekBar.OnSeekBarChangeListener seekBarListener = new SeekBar.OnSeekBarChangeListener() {
+//        boolean k;
+//        int progress;
+//        @Override
+//        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+//            k = fromUser;
+//            this.progress = progress;
+//        }
+//
+//        @Override
+//        public void onStartTrackingTouch(SeekBar seekBar) {
+//
+//        }
+//
+//        @Override
+//        public void onStopTrackingTouch(SeekBar seekBar) {
+//            if (player != null && k) {
+//                player.seekTo(progress);
+//            }
+//        }
+//    };
 
-        @Override
-        public void onStartTrackingTouch(SeekBar seekBar) {
-
-        }
-
-        @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {
-            if (player != null && k) {
-                player.seekTo(progress);
-            }
-        }
-    };
-
-    private String covertMiliToTime(long mili){
-        long min = mili / 1000 / 60;
-        long sec = mili / 1000 % 60;
-
-
-        return String.format("%02d", min) + ":" + String.format("%02d", sec);
-    }
-
-    class timerThread extends Thread {
-        @Override
-        public void run() {
-            while (playStatus < STOP) {
-                if (player != null) {
-                    Log.i("timerThread","============== 들어왔나안왔나");
-                    // 하단의 부분이 메인스레드에서 동작하도록 Runnable 객체를 메인스레드에 던져준다
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            // 플레이어가 도중에 종료되면 예외가 발생하기 때문에 예외처리를 해준다.
-                            // try로 해주면 퍼포먼스가 안좋아지기 때문에 if로 처리
-                            try {
-                                seekBar_player.setProgress(player.getCurrentPosition());
-                                tvDurationNow_player.setText(covertMiliToTime(player.getCurrentPosition()));
-                            } catch (Exception e) { e.printStackTrace(); }
-                        }
-                    });
-                }
-                try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
-            }
-        }
-    }
+//    class timerThread extends Thread {
+//        @Override
+//        public void run() {
+//            while (playStatus < STOP) {
+//                if (player != null) {
+//                    Log.i("timerThread","============== 들어왔나안왔나");
+//                    // 하단의 부분이 메인스레드에서 동작하도록 Runnable 객체를 메인스레드에 던져준다
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            // 플레이어가 도중에 종료되면 예외가 발생하기 때문에 예외처리를 해준다.
+//                            // try로 해주면 퍼포먼스가 안좋아지기 때문에 if로 처리
+//                            try {
+//                                seekBar_player.setProgress(player.getCurrentPosition());
+//                                tvDurationNow_player.setText(TimeUtil.covertMiliToTime(player.getCurrentPosition()));
+//                            } catch (Exception e) { e.printStackTrace(); }
+//                        }
+//                    });
+//                }
+//                try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
+//            }
+//        }
+//    }
 
 
 
 
-/////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
     // mainActivity에서 권한체크 메소드로 활용을 하자!
     // === MainActivity에서 선언해야 할 것 ===
     public final int REQ_PERMISSION = 100;
