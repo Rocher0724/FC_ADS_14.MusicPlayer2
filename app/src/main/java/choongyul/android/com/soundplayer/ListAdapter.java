@@ -20,7 +20,6 @@ import choongyul.android.com.soundplayer.domain.Common;
 import choongyul.android.com.soundplayer.domain.Music;
 import choongyul.android.com.soundplayer.util.fragment.PagerAdapter;
 
-import static choongyul.android.com.soundplayer.App.mainObserverFlag;
 
 
 public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
@@ -29,8 +28,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     private String flag;
     private int item_layout_id;
     Context context;
-    MainActivity main;
-    Server server = new Server();
+    Server server = Server.getInstance();
 
 
 
@@ -38,12 +36,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         this.context = context;
         this.datas = datas;
 
-        if(mainObserverFlag) {
-            Log.e("ListAdapter 생성자","main.observer는 몇번실행될까");
-            main = (MainActivity) context;
-            main.observer(server);
-            mainObserverFlag = false;
-        }
+
 
         this.flag = flag;
         switch (flag) {
@@ -135,7 +128,9 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
             box.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    server.sendMessage(position, datas, flag);
+                    Log.e("ListAdapter", "box를 클릭했다. ");
+
+                    server.sendMessage(position, datas, flag); // 플래그를 서버에 옮길 필요까지는 없는것 같다.
                 }
             });
         }

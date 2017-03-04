@@ -14,6 +14,8 @@ public abstract class Common {
     public abstract Uri getMusic_uri();
     public abstract String getTitle();
     public abstract String getArtist();
+    public abstract String getDuration();
+    public abstract String getDurationCovert();
 
 
 

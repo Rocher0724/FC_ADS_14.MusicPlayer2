@@ -4,6 +4,8 @@ import android.net.Uri;
 
 import java.util.List;
 
+import choongyul.android.com.soundplayer.util.TimeUtil;
+
 /**
  * Created by myPC on 2017-02-28.
  */
@@ -12,7 +14,7 @@ public class Artist extends Common {
     private String title;
 
     private String artist;
-    private String Duration;
+    private String duration;
 
     private String artist_key;
 
@@ -34,12 +36,17 @@ public class Artist extends Common {
         this.music_uri = music_uri;
     }
 
+    @Override
+    public String getDurationCovert() {
+        return TimeUtil.covertMiliToTime(Long.parseLong(duration));
+    }
+    @Override
     public String getDuration() {
-        return Duration;
+        return duration;
     }
 
     public void setDuration(String duration) {
-        Duration = duration;
+        this.duration = duration;
     }
 
     @Override

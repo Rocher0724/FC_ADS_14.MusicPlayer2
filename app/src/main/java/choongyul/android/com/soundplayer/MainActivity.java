@@ -4,10 +4,11 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.media.MediaPlayer;
-import android.net.Uri;
+import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -26,26 +27,18 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.util.List;
-
 import choongyul.android.com.soundplayer.domain.Common;
-import choongyul.android.com.soundplayer.domain.Music;
 import choongyul.android.com.soundplayer.util.TimeUtil;
 import choongyul.android.com.soundplayer.util.fragment.PagerAdapter;
-
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static choongyul.android.com.soundplayer.App.ACTION_PAUSE;
 import static choongyul.android.com.soundplayer.App.ACTION_PLAY;
-import static choongyul.android.com.soundplayer.App.ACTION_RESTART;
 import static choongyul.android.com.soundplayer.App.ACTION_STOP;
 import static choongyul.android.com.soundplayer.App.APP_RESTART;
 import static choongyul.android.com.soundplayer.App.ARG_LIST_TYPE;
 import static choongyul.android.com.soundplayer.App.ARG_POSITION;
-import static choongyul.android.com.soundplayer.App.PAUSE;
-import static choongyul.android.com.soundplayer.App.PLAY;
-import static choongyul.android.com.soundplayer.App.STOP;
 import static choongyul.android.com.soundplayer.App.playStatus;
 import static choongyul.android.com.soundplayer.App.player;
 
@@ -68,9 +61,9 @@ public class MainActivity extends AppCompatActivity
     List<?> datas;
     int position;
     Server server;
-    Thread thread;
     Intent service;
     String list_type = "";
+    Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +73,9 @@ public class MainActivity extends AppCompatActivity
         if( savedInstanceState != null ) {
             return;
         }
+
+        // 볼륨키로 음악볼륨 바꾸도록 설정
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
         checkVersion(REQ_PERMISSION);
         // 레이아웃 가져오기
@@ -101,7 +97,7 @@ public class MainActivity extends AppCompatActivity
         imgPlay_player.setOnClickListener(clickListener);
         imgff_player.setOnClickListener(clickListener);
         imgVol_player.setOnClickListener(clickListener);
-//        seekBar_player.setOnSeekBarChangeListener(seekBarListener);
+        seekBar_player.setOnSeekBarChangeListener(seekBarListener);
 
 
         // 서비스 설정
@@ -159,6 +155,12 @@ public class MainActivity extends AppCompatActivity
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(viewPager));
 
+        //서버 설정
+        server = Server.getInstance();
+        server.addObserver(this);
+        // 핸들러 설정
+        handler = new Handler();
+
         if(playStatus == ACTION_PLAY) {
             initPlayerSetting();
         }
@@ -166,17 +168,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onBackPressed() {
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
@@ -184,12 +176,8 @@ public class MainActivity extends AppCompatActivity
     // 툴바 우측 옵션 클릭리스너
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         switch (id) {
             case R.id.action_sort:
                 libraryLO.setVisibility(VISIBLE);
@@ -235,41 +223,42 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void update() {
+        Log.e("MainActivity", "box를 클릭하여 어댑터에서 메인액티비티로 넘어왔다. ");
+
         datas = server.datas;
         position = server.getPosition();
         list_type = server.getTypeFlag();
         initPlayerSetting();
     }
 
-    //student의 생성자와 같은 역할을 하는 것. 한번만 실행되면 된다.
-    public void observer(Server server) {
-        this.server = server;
-        server.addObserver(this);
-    }
-
     private void initPlayerSetting() {
 
         // 나갔다 들어온경우 (APP_RESTART = true) 일경우 필요한것들만 세팅해준다.
+        Log.e("MainActivity", "APP_RESTART =  " + APP_RESTART);
+
         if( !APP_RESTART ){
             // 음악을 이동할 경우 플레이어에 세팅된 값을 해제한 후 로직을 실행한다.
+
+            // 플레이 상태를 STOP으로 변경
+            playStatus = ACTION_STOP;
             if (player != null ) { // player != null 뷰페이져 이동시에  // playStatus != PLAY 나갔다 들어왔을때
-                // 플레이 상태를 STOP으로 변경
-                playStatus = ACTION_STOP;
                 // 아이콘을 플레이 버튼으로 변경
                 player.release();
+                Log.e("MainActivity", "플레이어 릴리즈! ");
 
                 imgPlay_player.setImageResource(android.R.drawable.ic_media_play);
             }
+            Log.e("MainActivity", "플레이어세팅직전! ");
 
             initPlayer();
             initController();
             playMusic();
+            Log.e("Mainactivity", "playStatus = " + playStatus);
 
         } else {
             APP_RESTART = false;
             initController();
             imgPlay_player.setImageResource(android.R.drawable.ic_media_pause);
-            threadStart();
         }
 
     }
@@ -291,18 +280,17 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void initController() {
-//        Music music = datas.get(position);
-//        tvDurationNow_player.setText("0");
-//        tvDurationMax.setText(TimeUtil.covertMiliToTime(player.getDuration()));
-//        seekBar_player.setMax(player.getDuration());
+        Log.e("MainActivity", "식바와 듀레이션 세팅 ");
+
+        Common common = (Common) datas.get(position);
         // seekbar 최고길이 설정
-        seekBar_player.setMax(player.getDuration());
+        seekBar_player.setMax(Integer.parseInt(common.getDuration()));
         // seekbar 현재 값 0으로 설정
         seekBar_player.setProgress(0);
         // 전체 플레이 시간 설정
-        tvDurationMax.setText(TimeUtil.covertMiliToTime(player.getDuration()));
+        tvDurationMax.setText(common.getDurationCovert());
         // 현재 플레이시간 0으로 설정
-        tvDurationNow_player.setText("0");
+        tvDurationNow_player.setText("00:00");
     }
 
     View.OnClickListener clickListener = new View.OnClickListener() {
@@ -330,7 +318,8 @@ public class MainActivity extends AppCompatActivity
 //            mViewPager.setCurrentItem(datas.size());
 //        }
     }
-//    다음음악
+
+    //    다음음악
     private void nextMusic() {
 //        if (position < datas.size()) {
 //            position = position+1;
@@ -350,17 +339,18 @@ public class MainActivity extends AppCompatActivity
                 playPause();
                 break;
             case ACTION_PAUSE:
-                playRestart();
+                playStart();
                 break;
         }
     }
-
     private void playStart() {
         Intent intent = new Intent(this, SoundService.class);
         intent.setAction(ACTION_PLAY);
         intent.putExtra(ARG_POSITION, position);
         intent.putExtra(ARG_LIST_TYPE,list_type);
         startService(intent);
+        Log.e("MainActivity", " 서비스로 출발");
+
 
 //        playStatus = PLAY;
 //        service.setAction(ACTION_PLAY);
@@ -368,95 +358,45 @@ public class MainActivity extends AppCompatActivity
 //        imgPlay_player.setImageResource(android.R.drawable.ic_media_pause);
 //        threadStart();
     }
+
     private void playPause() {
-//        service.setAction(ACTION_PAUSE);
-//        startService(service);
-//        imgPlay_player.setImageResource(android.R.drawable.ic_media_play);
-    }
-    private void playRestart() {
-//        service.setAction(ACTION_RESTART);
-//        startService(service);
-//        player.seekTo(player.getCurrentPosition());
-//        imgPlay_player.setImageResource(android.R.drawable.ic_media_pause);
-    }
-    private void threadStart() {
-        // sub thread를 생성해서 mediaplayer의 현재 포지션 값으로 seekbar를 변경해준다
-        // 매1초마다 sub thread 에서 동작할 로직 정의
-        thread = new timerThread();
-        // 새로운 스레드 시작
-        thread.start();
+        Intent intent = new Intent(this, SoundService.class);
+        intent.setAction(ACTION_PAUSE);
+        startService(intent);
+        Log.e("MainActivity", " pause를 위해 서비스로 출발");
     }
 
-//    @Override
-//    protected void onDestroy() {
-//        thread.interrupted();
-//        super.onDestroy();
-//    }
+    @Override
+    public void onBackPressed() {
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
 
-//    ViewPager.OnPageChangeListener viewPagerListener = new ViewPager.OnPageChangeListener() {
-//        @Override
-//        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-//
-//        }
-//
-//        @Override
-//        public void onPageSelected(int position) {
-//            App.position = position;
-//            initPlayerSetting();
-//        }
-//
-//        @Override
-//        public void onPageScrollStateChanged(int state) {
-//
-//        }
-//    };
+    // seekbar를 이동하면 미디어가 이동하도록 변경
+    SeekBar.OnSeekBarChangeListener seekBarListener = new SeekBar.OnSeekBarChangeListener() {
+        boolean seekBarByUser;
+        int progress;
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            seekBarByUser = fromUser;
+            this.progress = progress;
+        }
 
-//    // seekbar를 이동하면 미디어가 이동하도록 변경
-//    SeekBar.OnSeekBarChangeListener seekBarListener = new SeekBar.OnSeekBarChangeListener() {
-//        boolean k;
-//        int progress;
-//        @Override
-//        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-//            k = fromUser;
-//            this.progress = progress;
-//        }
-//
-//        @Override
-//        public void onStartTrackingTouch(SeekBar seekBar) {
-//
-//        }
-//
-//        @Override
-//        public void onStopTrackingTouch(SeekBar seekBar) {
-//            if (player != null && k) {
-//                player.seekTo(progress);
-//            }
-//        }
-//    };
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
 
-//    class timerThread extends Thread {
-//        @Override
-//        public void run() {
-//            while (playStatus < STOP) {
-//                if (player != null) {
-//                    Log.i("timerThread","============== 들어왔나안왔나");
-//                    // 하단의 부분이 메인스레드에서 동작하도록 Runnable 객체를 메인스레드에 던져준다
-//                    runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            // 플레이어가 도중에 종료되면 예외가 발생하기 때문에 예외처리를 해준다.
-//                            // try로 해주면 퍼포먼스가 안좋아지기 때문에 if로 처리
-//                            try {
-//                                seekBar_player.setProgress(player.getCurrentPosition());
-//                                tvDurationNow_player.setText(TimeUtil.covertMiliToTime(player.getCurrentPosition()));
-//                            } catch (Exception e) { e.printStackTrace(); }
-//                        }
-//                    });
-//                }
-//                try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
-//            }
-//        }
-//    }
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+            if (player != null && seekBarByUser) {
+                player.seekTo(progress);
+            }
+        }
+    };
 
 
 
@@ -535,5 +475,42 @@ public class MainActivity extends AppCompatActivity
             }
         }
         return checkResult;
+    }
+
+
+    @Override
+    public void startPlayer() {
+        imgPlay_player.setImageResource(android.R.drawable.ic_media_pause);
+    }
+
+    @Override
+    public void stopPlayer() {
+        imgPlay_player.setImageResource(android.R.drawable.ic_media_play);
+    }
+
+    @Override
+    public void playerSeekBarCounter(Message msg) {
+        final Message message = msg;
+        handler.post(new Runnable() {
+                         @Override
+                         public void run() {
+                             tvDurationNow_player.setText(TimeUtil.covertMiliToTime(message.arg1));
+                             seekBar_player.setProgress(message.arg1);
+                         }
+                     });
+
+//        tvDurationNow_player.setText(TimeUtil.covertMiliToTime(msg.arg1));
+//        seekBar_player.setProgress(msg.arg1);
+    }
+
+    @Override
+    public void pausePlayer() {
+        imgPlay_player.setImageResource(android.R.drawable.ic_media_play);
+    }
+
+    @Override
+    protected void onDestroy(){
+        server.remove(this);
+        super.onDestroy();
     }
 }

@@ -117,9 +117,9 @@
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:id="@+id/playerLo"
-        android:orientation="horizontal"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:background="#f9f4ff">
 
 
         <ImageView

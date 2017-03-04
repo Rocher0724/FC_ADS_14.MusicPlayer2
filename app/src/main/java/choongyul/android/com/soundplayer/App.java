@@ -59,7 +59,7 @@ public class App {
     }
 
     //서버등록 플래그
-    public static boolean mainObserverFlag = true;
+//    public static boolean mainObserverFlag = true;
 
 
 //

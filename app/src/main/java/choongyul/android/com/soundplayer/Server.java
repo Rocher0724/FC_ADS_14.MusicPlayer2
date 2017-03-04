@@ -1,6 +1,7 @@
 package choongyul.android.com.soundplayer;
 
 import android.net.Uri;
+import android.os.Message;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +14,20 @@ import choongyul.android.com.soundplayer.domain.Common;
 
 public class Server {
 
-    List<Observer> observers = new ArrayList<>();
+    private static Server instance;
+
+    private Server() {
+        observers = new ArrayList<>();
+    }
+
+    public static Server getInstance() {
+        if(instance == null) {
+            instance = new Server();
+        }
+        return instance;
+    }
+
+    List<Observer> observers;
     // 데이터 저장소
     private int position = -1;
     List<?> datas;
@@ -51,6 +65,33 @@ public class Server {
 
     public String getTypeFlag() {
         return typeFlag;
+    }
+
+    public void play(){
+        for(Observer observer : observers){
+            observer.startPlayer();
+        }
+    }
+
+    public void pause(){
+        for(Observer observer : observers){
+            observer.pausePlayer();
+        }
+    }
+    public void stop(){
+        for(Observer observer : observers){
+            observer.stopPlayer();
+        }
+    }
+
+    public void playerSeekBarCounter(Message msg){
+        for(Observer observer : observers){
+            observer.playerSeekBarCounter(msg);
+        }
+    }
+
+    public void remove(Observer observer){
+        observers.remove(observer);
     }
 }
 

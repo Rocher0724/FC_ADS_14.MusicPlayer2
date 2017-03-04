@@ -2,6 +2,8 @@ package choongyul.android.com.soundplayer.domain;
 
 import android.net.Uri;
 
+import choongyul.android.com.soundplayer.util.TimeUtil;
+
 /**
  * Created by myPC on 2017-02-01.
  */
@@ -42,6 +44,12 @@ public class Music extends Common{
         return composer;
     }
     private String composer; // 작곡가
+
+    @Override
+    public String getDurationCovert() {
+        return TimeUtil.covertMiliToTime(Long.parseLong(duration));
+    }
+    @Override
     public String getDuration() {
         return duration;
     }
