@@ -31,7 +31,6 @@ public class Artist extends Common {
         return music_uri;
     }
 
-
     public void setMusic_uri(Uri music_uri) {
         this.music_uri = music_uri;
     }

@@ -27,18 +27,25 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+
 import java.util.List;
 import choongyul.android.com.soundplayer.domain.Common;
 import choongyul.android.com.soundplayer.util.TimeUtil;
 import choongyul.android.com.soundplayer.util.fragment.PagerAdapter;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static choongyul.android.com.soundplayer.App.ACTION_NEXT;
+import static choongyul.android.com.soundplayer.App.ACTION_NONE;
 import static choongyul.android.com.soundplayer.App.ACTION_PAUSE;
 import static choongyul.android.com.soundplayer.App.ACTION_PLAY;
+import static choongyul.android.com.soundplayer.App.ACTION_RESTART;
 import static choongyul.android.com.soundplayer.App.ACTION_STOP;
 import static choongyul.android.com.soundplayer.App.APP_RESTART;
 import static choongyul.android.com.soundplayer.App.ARG_LIST_TYPE;
 import static choongyul.android.com.soundplayer.App.ARG_POSITION;
+import static choongyul.android.com.soundplayer.App.ARG_SEEKTO;
 import static choongyul.android.com.soundplayer.App.playStatus;
 import static choongyul.android.com.soundplayer.App.player;
 
@@ -161,9 +168,10 @@ public class MainActivity extends AppCompatActivity
         // 핸들러 설정
         handler = new Handler();
 
-        if(playStatus == ACTION_PLAY) {
-            initPlayerSetting();
-        }
+//         재시작 했을때 플레이어 살리기 위한것 같음 나중에 알아보기
+//        if(playStatus == ACTION_PLAY) {
+//            initPlayerSetting();
+//        }
 
     }
 
@@ -208,9 +216,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.menu_sleep) {
         } else if (id == R.id.menu_nowplaying) {
         } else if (id == R.id.menu_playlist) {
-
         } else if (id == R.id.action_settings) {
-
         }
 
         drawer.closeDrawer(GravityCompat.START);
@@ -228,6 +234,8 @@ public class MainActivity extends AppCompatActivity
         datas = server.datas;
         position = server.getPosition();
         list_type = server.getTypeFlag();
+        // 플레이 상태를 STOP으로 변경
+        playStatus = ACTION_STOP;
         initPlayerSetting();
     }
 
@@ -239,12 +247,11 @@ public class MainActivity extends AppCompatActivity
         if( !APP_RESTART ){
             // 음악을 이동할 경우 플레이어에 세팅된 값을 해제한 후 로직을 실행한다.
 
-            // 플레이 상태를 STOP으로 변경
-            playStatus = ACTION_STOP;
-            if (player != null ) { // player != null 뷰페이져 이동시에  // playStatus != PLAY 나갔다 들어왔을때
+
+            if (player != null  ) { // player != null 뷰페이져 이동시에  // playStatus != PLAY 나갔다 들어왔을때
                 // 아이콘을 플레이 버튼으로 변경
-                player.release();
-                Log.e("MainActivity", "플레이어 릴리즈! ");
+//                player.release();
+//                Log.e("MainActivity", "플레이어 릴리즈! ");
 
                 imgPlay_player.setImageResource(android.R.drawable.ic_media_play);
             }
@@ -291,8 +298,13 @@ public class MainActivity extends AppCompatActivity
         tvDurationMax.setText(common.getDurationCovert());
         // 현재 플레이시간 0으로 설정
         tvDurationNow_player.setText("00:00");
+
+        Glide.with(this).load(common.getImageUri()).placeholder(R.mipmap.icon_play96).into(imgAlbum_player);
+        tvThick_Player.setText(common.getTitle());
+        tvThin_Player.setText(common.getArtist());
     }
 
+    // 클릭 리스너
     View.OnClickListener clickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -321,13 +333,20 @@ public class MainActivity extends AppCompatActivity
 
     //    다음음악
     private void nextMusic() {
-//        if (position < datas.size()) {
-//            position = position+1;
+//        if(player != null) {
+//            Log.e("main - nextMusic","다음곡을 실행시켜보자");
 //
-//        } else {
-//            position = 0;
+//            if (position < datas.size()) {
+//                position = position + 1;
+//
+//            } else {
+//                position = 0;
+//            }
+//            playStatus = ACTION_NEXT;
+//            initPlayerSetting();
 //        }
-//        initPlayerSetting();
+        playNext();
+
     }
     // 음악플레이
     private void playMusic() {
@@ -335,11 +354,17 @@ public class MainActivity extends AppCompatActivity
             case ACTION_STOP: // 현재상태 스탑
                 playStart();
                 break;
+            case ACTION_RESTART:
             case ACTION_PLAY:
                 playPause();
                 break;
             case ACTION_PAUSE:
-                playStart();
+                playRestart();
+                break;
+            case ACTION_NONE:
+                break;
+            case ACTION_NEXT:
+                playNext();
                 break;
         }
     }
@@ -348,22 +373,45 @@ public class MainActivity extends AppCompatActivity
         intent.setAction(ACTION_PLAY);
         intent.putExtra(ARG_POSITION, position);
         intent.putExtra(ARG_LIST_TYPE,list_type);
+        playStatus = ACTION_PLAY;
         startService(intent);
-        Log.e("MainActivity", " 서비스로 출발");
-
-
-//        playStatus = PLAY;
-//        service.setAction(ACTION_PLAY);
-//        startService(service);
-//        imgPlay_player.setImageResource(android.R.drawable.ic_media_pause);
-//        threadStart();
+        Log.e("MainActivity", " 새로운 음악 시작을 위해 서비스로 출발");
     }
+
+    private void playNext() {
+        Intent intent = new Intent(this, SoundService.class);
+        intent.setAction(ACTION_NEXT);
+        intent.putExtra(ARG_POSITION, position);
+        intent.putExtra(ARG_LIST_TYPE,list_type);
+        playStatus = ACTION_PLAY;
+        startService(intent);
+        Log.e("MainActivity", " 새로운 음악 시작을 위해 서비스로 출발");
+    }
+
+//    private void playRestart() {
+//        Intent intent = new Intent(this, SoundService.class);
+//        intent.setAction(ACTION_RESTART);
+//        intent.putExtra(ARG_POSITION, position);
+//        intent.putExtra(ARG_LIST_TYPE,list_type);
+//        playStatus = ACTION_RESTART;
+//        startService(intent);
+//        Log.e("MainActivity", " 새로운 음악 시작을 위해 서비스로 출발");
+//    }
+
 
     private void playPause() {
         Intent intent = new Intent(this, SoundService.class);
         intent.setAction(ACTION_PAUSE);
+        playStatus = ACTION_PAUSE;
         startService(intent);
         Log.e("MainActivity", " pause를 위해 서비스로 출발");
+    }
+    private void playRestart() {
+        Intent intent = new Intent(this, SoundService.class);
+        intent.setAction(ACTION_RESTART);
+        playStatus = ACTION_RESTART;
+        startService(intent);
+        Log.e("MainActivity", " restart를 위해 서비스로 출발");
     }
 
     @Override
@@ -498,14 +546,25 @@ public class MainActivity extends AppCompatActivity
                              seekBar_player.setProgress(message.arg1);
                          }
                      });
+    }
 
-//        tvDurationNow_player.setText(TimeUtil.covertMiliToTime(msg.arg1));
-//        seekBar_player.setProgress(msg.arg1);
+    @Override
+    public void nextSongPlay() {
+        position = position + 1;
+        initController();
+        imgPlay_player.setImageResource(android.R.drawable.ic_media_pause);
+//        playStatus = ACTION_PLAY;
+    }
+
+    @Override
+    public void restartPlayer() {
+        imgPlay_player.setImageResource(android.R.drawable.ic_media_pause);
     }
 
     @Override
     public void pausePlayer() {
         imgPlay_player.setImageResource(android.R.drawable.ic_media_play);
+
     }
 
     @Override

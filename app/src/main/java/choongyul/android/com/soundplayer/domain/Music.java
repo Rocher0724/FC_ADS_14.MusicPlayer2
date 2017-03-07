@@ -13,9 +13,7 @@ public class Music extends Common{
     // music info
     private String id;
     private String title;
-
     private String artist;
-
     private String artist_key;
     private String album_id;
     private String genre_id;
@@ -27,17 +25,14 @@ public class Music extends Common{
     private boolean favor; // 선택된 음악만 넣을 때?
 
 
-
-
-
     public void setIs_music(String is_music) {
         this.is_music = is_music;
     }
 
     private String is_music; // 음악만 가져옴
-
     private String content_type; //
     private String year; //
+
 
 
     public String getComposer() {

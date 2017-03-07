@@ -1,12 +1,8 @@
 package choongyul.android.com.soundplayer;
 
-import android.net.Uri;
 import android.os.Message;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import choongyul.android.com.soundplayer.domain.Common;
 
 /**
  * Created by myPC on 2017-02-28.
@@ -72,6 +68,11 @@ public class Server {
             observer.startPlayer();
         }
     }
+    public void Restart(){
+        for(Observer observer : observers){
+            observer.restartPlayer();
+        }
+    }
 
     public void pause(){
         for(Observer observer : observers){
@@ -81,6 +82,12 @@ public class Server {
     public void stop(){
         for(Observer observer : observers){
             observer.stopPlayer();
+        }
+    }
+
+    public void next(){
+        for(Observer observer : observers){
+            observer.nextSongPlay();
         }
     }
 

@@ -21,14 +21,16 @@ public class App {
 //    public static final String ACTION_FAST_FORWARD = "choongyul.android.com.soundplayer.action.fast.foward";
     public static final String ACTION_NEXT = "choongyul.android.com.soundplayer.action.next";
     public static final String ACTION_PREVIOUS = "choongyul.android.com.soundplayer.action.previous";
+    public static final String ACTION_NONE = "choongyul.android.com.soundplayer.action.none";
 
     public static final String ARG_POSITION = "position";
     public static final String ARG_LIST_TYPE = "list-type";
+    public static final String ARG_SEEKTO = "seek-to";
 
 
     public static boolean APP_RESTART = false;
     // 플레이어 상태 플래그
-    public static String playStatus = "";
+    public static String playStatus = ACTION_NONE;
     public static int position = 0; // 현재 음악 위치
 
 

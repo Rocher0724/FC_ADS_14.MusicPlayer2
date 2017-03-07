@@ -14,4 +14,6 @@ public interface Observer {
     public void pausePlayer();
     public void stopPlayer();
     public void playerSeekBarCounter(Message msg);
+    public void nextSongPlay();
+    public void restartPlayer();
 }

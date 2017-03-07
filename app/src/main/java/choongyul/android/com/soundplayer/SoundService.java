@@ -1,12 +1,10 @@
 package choongyul.android.com.soundplayer;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Icon;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -14,15 +12,9 @@ import android.os.IBinder;
 import android.os.Message;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import choongyul.android.com.soundplayer.domain.Common;
-import choongyul.android.com.soundplayer.domain.Music;
-import choongyul.android.com.soundplayer.util.TimeUtil;
-import choongyul.android.com.soundplayer.util.fragment.PagerAdapter;
-
 import static android.app.PendingIntent.getService;
 import static choongyul.android.com.soundplayer.App.ACTION_NEXT;
 import static choongyul.android.com.soundplayer.App.ACTION_PAUSE;
@@ -40,7 +32,7 @@ public class SoundService extends Service implements Observer {
     public static String listType = "";
     public static int position = -1;
     List<?> datas = new ArrayList<>();
-    Thread thread;
+    Thread thread = null;
     Server server;
     public static final int WHAT = 100; // 핸들러 사용을 위한 리턴변수 선언
 
@@ -59,9 +51,15 @@ public class SoundService extends Service implements Observer {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.e("Service", "서비스도착 ");
 
+        if(thread != null && thread.isAlive() && (intent.getAction() == ACTION_PLAY || intent.getAction() == ACTION_NEXT)){
+            thread.interrupt();
+            Log.e("service", "쓰레드를 죽였다. ");
+        }
+
         if( intent != null && intent.getExtras() != null ) {
             listType = intent.getExtras().getString(ARG_LIST_TYPE);
             position = intent.getExtras().getInt(ARG_POSITION);
+
 
 //            if(player == null) { // 강사님은 이게 있음. 문제가 생길수 있다.......
                 Log.e("Service", "미디어를 세팅해보자");
@@ -72,57 +70,33 @@ public class SoundService extends Service implements Observer {
 
         handleAction( intent );
         return super.onStartCommand(intent, flags, startId);
-
-
-//            String action = intent.getAction();
-//            switch (action) {
-//                case ACTION_PLAY:
-//                    playMusic();
-//                    break;
-//                case ACTION_RESTART:
-//                    playRestart();
-//                    break;
-//                case ACTION_PAUSE:
-//                    playPause();
-//                    break;
-//            }
         }
-
-        //서비스는 액티비티가 들고있고 서비슨느 핸들러를 참조해서 메시지를 보내야한다.
-        /// 강사님 소스
-//        if( intent != null && intent.getExtras() != null ) {
-//            listType = intent.getExtras().getString(ListFragment.ARG_LIST_TYPE);
-//            position = intent.getExtras().getInt(ListFragment.ARG_POSITION);
-//
-//            if(player == null) {
-//                initMedia();
-//            }
-//        }
-//
-//        handleAction( intent );
-//        return super.onStartCommand(intent, flags, startId);
-//
-//        ///
-//        return super.onStartCommand(intent, flags, startId);
-//    }
 
     // 1. 미디어 플레이어 기본값 설정
     public void initMedia() {
         Log.e("Service", "initMedia. 플레이어.create");
 
-        datas = server.datas;
 
+        datas = server.datas;
         Uri musicUri = ((Common) datas.get(position)).getMusic_uri();
+
+        if(player != null) {
+            player.release();
+            Log.e("MainActivity", "플레이어 릴리즈! ");
+        }
+
         player = MediaPlayer.create(this, musicUri); // 시스템파일 - context, 음원파일Uri . player를 최초 실행시키는 방법이다.
         player.setLooping(false);
 
+
         // 다음곡 자동재생
         player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                //TODO next();
-            }
-        });
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    //TODO next();
+                }
+            });
+
     }
 
 
@@ -135,6 +109,7 @@ public class SoundService extends Service implements Observer {
             return;
         String action = intent.getAction();
         Log.e("Service", "가지고온 action = " + action);
+        Log.e("Service", "현재 playStatus = " + playStatus);
 
         if( action.equalsIgnoreCase( ACTION_PLAY ) ) {
             // 음원 실행처리
@@ -144,9 +119,11 @@ public class SoundService extends Service implements Observer {
         } else if ( action.equalsIgnoreCase(ACTION_PREVIOUS) ) {
 
         } else if ( action.equalsIgnoreCase(ACTION_NEXT) ) {
-
+            server.next();
         } else if ( action.equalsIgnoreCase(ACTION_STOP) ) {
             server.stop();
+        } else if ( action.equalsIgnoreCase(ACTION_RESTART) ) {
+            server.Restart();
         }
     }
 
@@ -200,17 +177,27 @@ public class SoundService extends Service implements Observer {
     }
 
     public void playerStart() {
-        if(player == null) {
-            Log.e("Service - playerSart", "player는 널이다.");
+        // pause 후 재 실행시켰을 땐 기존 위치부터 재생
+//        if(playStatus == ACTION_RESTART) { player.seekTo(player.getCurrentPosition()); }
 
-        }
         player.start();
         buildNotification( generateAction( android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE ) , ACTION_PAUSE );
-        thread = new timerThread();
-        thread.start();
         Log.e("Service", "playerStart 메소드 - playStatus = " + playStatus);
-        playStatus = ACTION_PLAY;
 
+        // pause 후 재 실행 시켰을때 쓰레드가 다시 실행되는 것 방지
+//        if( playStatus != ACTION_RESTART) {
+            thread = new timerThread(); thread.start();
+            Log.e("service", "새로운 스레드가 시작한다. ");
+//        }
+
+    }
+
+    public void playerRestart() {
+        // pause 후 재 실행시켰을 땐 기존 위치부터 재생
+        player.seekTo(player.getCurrentPosition());
+        player.start();
+        buildNotification( generateAction( android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE ) , ACTION_PAUSE );
+        Log.e("Service", "playerStart 메소드 - playStatus = " + playStatus);
     }
 
     public void playerPause() {
@@ -219,10 +206,8 @@ public class SoundService extends Service implements Observer {
         player.pause();
         buildNotification( generateAction( android.R.drawable.ic_media_play,  // 노티에 표시할 아이콘
                                                                      "Play",    // 노티에 표시할 텍스트
-                                                            ACTION_PLAY ) ,     // 다음번 클릭에 들어갈 행동동
+                                                            ACTION_RESTART ) ,     // 다음번 클릭에 들어갈 행동동
                                                                ACTION_PLAY );   // buildNotification 에서 특정 액션을 실행시키거나 실행못하게 하고싶을때.
-
-        playStatus = ACTION_PAUSE;
     }
 
     public void playerStop() {
@@ -230,6 +215,23 @@ public class SoundService extends Service implements Observer {
         onDestroy();
 //        player.stop();
 //        buildNotification( generateAction( android.R.drawable.ic_media_play, "Play", ACTION_PLAY ) , ACTION_PLAY );
+    }
+    public void playerNext() {
+        if (position < datas.size()) {
+            position = position + 1;
+        } else {
+            position = 0;
+        }
+
+        initMedia();
+
+        player.start();
+        buildNotification( generateAction( android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE ) , ACTION_PAUSE );
+        Log.e("Service", "playerStart 메소드 - playStatus = " + playStatus);
+
+        thread = new timerThread(); thread.start();
+        Log.e("service", "새로운 스레드가 시작한다. ");
+
     }
 
 
@@ -258,11 +260,21 @@ public class SoundService extends Service implements Observer {
         // 서비스나 노티바에는 seekber가 없어서 아무것도 안써도 된다.
     }
 
+    @Override
+    public void nextSongPlay() { playerNext();
+
+    }
+
+    @Override
+    public void restartPlayer() {
+        playerRestart();
+    }
+
     class timerThread extends Thread {
         @Override
         public void run() {
-            while (playStatus == ACTION_PLAY) {
-                if (player != null) {
+            while ( playStatus != ACTION_STOP ) {
+                if ( player != null ) {
                     Log.e("SeekbarCheck Thread","쓰레드가 돌고있다!!!!");
 
                     Message msg = new Message();
@@ -271,20 +283,12 @@ public class SoundService extends Service implements Observer {
                     server.playerSeekBarCounter(msg);
 
 
-//                    // 하단의 부분이 메인스레드에서 동작하도록 Runnable 객체를 메인스레드에 던져준다
-//                    runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            // 플레이어가 도중에 종료되면 예외가 발생하기 때문에 예외처리를 해준다.
-//                            // try로 해주면 퍼포먼스가 안좋아지기 때문에 if로 처리
-//                            try {
-//                                seekBar_player.setProgress(player.getCurrentPosition());
-//                                tvDurationNow_player.setText(TimeUtil.covertMiliToTime(player.getCurrentPosition()));
-//                            } catch (Exception e) { e.printStackTrace(); }
-//                        }
-//                    });
                 }
-                try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
+                try { Thread.sleep(1000); } catch (InterruptedException e) {
+                    Log.e("SeekbarCheck Thread","쓰레드가 돌던 도중 문제가 발생하였다.");
+                    break;
+
+                }
             }
             Log.e("SeekbarCheck Thread","쓰레드가 끝났다.");
         }
@@ -295,21 +299,6 @@ public class SoundService extends Service implements Observer {
     public Context getApplicationContext() {
         return super.getApplicationContext();
     }
-
-//    private void playMusic() {
-//        player.start();
-//        playStatus = PLAY;
-//    }
-//    private void playPause() {
-//        player.pause();
-//        playStatus = PAUSE;
-//    }
-//    private void playRestart() {
-//        player.seekTo(player.getCurrentPosition());
-//        player.start();
-//        playStatus = PLAY;
-//    }
-
 
     @Override
     public void onDestroy() {
