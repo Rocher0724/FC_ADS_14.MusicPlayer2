@@ -19,4 +19,11 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+
+    <declare-styleable name="SlideOutView">
+        <attr name="strike_color" format="color"/>
+        <attr name="strikable" format="boolean"/>
+
+    </declare-styleable>
+
 </resources>

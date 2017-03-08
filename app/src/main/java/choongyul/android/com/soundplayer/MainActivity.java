@@ -18,6 +18,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -62,8 +63,10 @@ public class MainActivity extends AppCompatActivity
     LinearLayout libraryLO;
     LinearLayout detailLO;
     ImageView imgAlbum_player, imgPlay_player, imgff_player, imgVol_player;
-    TextView tvThick_Player,tvThin_Player, tvDurationNow_player, tvDurationMax;
+    TextView tvThick_Player, tvDurationNow_player, tvDurationMax;
+    SlideOutView tvThin_Player;
     SeekBar seekBar_player;
+    SeekBar volSeekBar;
     // 음악데이터
     List<?> datas;
     int position;
@@ -95,10 +98,11 @@ public class MainActivity extends AppCompatActivity
         imgff_player = (ImageView) findViewById(R.id.imgff_player);
         imgVol_player = (ImageView) findViewById(R.id.imgVol_player);
         tvThick_Player = (TextView) findViewById(R.id.tvThick_player);
-        tvThin_Player = (TextView) findViewById(R.id.tvThin_player);
+        tvThin_Player = (SlideOutView) findViewById(R.id.tvThin_player);
         tvDurationNow_player = (TextView) findViewById(R.id.tvDurationNow_player);
         tvDurationMax = (TextView) findViewById(R.id.tvDurationMax_player);
         seekBar_player = (SeekBar) findViewById(R.id.seekBar_player);
+        volSeekBar = (SeekBar) findViewById(R.id.volSeekBar);
 
         // 리스너 세팅
         imgPlay_player.setOnClickListener(clickListener);
@@ -301,7 +305,10 @@ public class MainActivity extends AppCompatActivity
 
         Glide.with(this).load(common.getImageUri()).placeholder(R.mipmap.icon_play96).into(imgAlbum_player);
         tvThick_Player.setText(common.getTitle());
+//        tvThick_Player.set
         tvThin_Player.setText(common.getArtist());
+        tvThick_Player.setSelected(true);
+
     }
 
     // 클릭 리스너
@@ -318,36 +325,27 @@ public class MainActivity extends AppCompatActivity
                 case R.id.imgVol_player:
                     musicVolChange();
                     break;
+                case R.id.tvThin_player:
+                    ((SlideOutView)v).strike(true);
+                    break;
             }
         }
     };
 
     // 볼륨체인지
     private void musicVolChange() {
-//        if (position > 0) {
-//            mViewPager.setCurrentItem(position-1);
-//        } else {
-//            mViewPager.setCurrentItem(datas.size());
-//        }
+        if(volSeekBar.getVisibility() == GONE) {
+            volSeekBar.setVisibility(VISIBLE);
+        } else {
+            volSeekBar.setVisibility(GONE);
+        }
     }
 
     //    다음음악
     private void nextMusic() {
-//        if(player != null) {
-//            Log.e("main - nextMusic","다음곡을 실행시켜보자");
-//
-//            if (position < datas.size()) {
-//                position = position + 1;
-//
-//            } else {
-//                position = 0;
-//            }
-//            playStatus = ACTION_NEXT;
-//            initPlayerSetting();
-//        }
         playNext();
-
     }
+
     // 음악플레이
     private void playMusic() {
         switch(playStatus) {

@@ -150,13 +150,16 @@ public class SoundService extends Service implements Observer {
         intentStop.setAction( ACTION_STOP );
         PendingIntent stopIntent = getService(getApplicationContext(), 1, intentStop, 0);
 
+        Intent playerActivityStartIntent= new Intent(this, MainActivity.class);
+        PendingIntent startActivityIntent = PendingIntent.getActivity(this, 0, playerActivityStartIntent, 0);
 
         // 노티 바 생성
         NotificationCompat.Builder builder = new NotificationCompat.Builder( this );
 
         builder.setSmallIcon(R.mipmap.icon_play96)
                 .setContentTitle( common.getTitle() )
-                .setContentText( common.getArtist() );
+                .setContentText( common.getArtist() )
+                .setContentIntent(startActivityIntent);
 
         // 현 상태가 퍼즈일 경우만 노티 삭제 가능하려면 setOngoing을 true로 놓으면된다.
         if( action_flag == ACTION_PAUSE ) {

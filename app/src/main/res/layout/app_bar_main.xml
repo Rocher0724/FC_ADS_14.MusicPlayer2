@@ -23,96 +23,116 @@
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
 
+
     </android.support.design.widget.AppBarLayout>
 
-    <!--툴바 아래에 컨텐츠 영역-->
-    <!--<include layout="@layout/content_main" />-->
-
-    <LinearLayout
-        android:orientation="horizontal"
+    <RelativeLayout
+        android:id="@+id/tempRelative"
         android:layout_width="match_parent"
-        android:id="@+id/mainLo"
         android:layout_height="wrap_content"
         android:layout_below="@+id/apptoolbar"
         android:layout_above="@+id/playerLo">
 
         <LinearLayout
-            android:orientation="vertical"
+            android:orientation="horizontal"
+            android:id="@+id/mainLo"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/libraryLO"
-            android:visibility="visible">
+            android:layout_height="wrap_content">
 
-            <android.support.design.widget.TabLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:id="@+id/tab"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true" />
-
-
-            <android.support.v4.view.ViewPager
-                android:layout_width="match_parent"
-                android:id="@+id/viewPager"
-                android:layout_below="@id/tab"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/detailLO"
-            android:visibility="gone">
-
-            <android.support.v7.widget.Toolbar
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?attr/colorPrimary"
-                android:theme="?attr/actionBarTheme"
-                android:minHeight="?attr/actionBarSize"
-                android:id="@+id/detailToolbar"
-                android:paddingLeft="0dp"
-                android:paddingRight="0dp">
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <ImageView
-                        android:layout_height="wrap_content"
-                        app:srcCompat="?attr/actionModeCloseDrawable"
-                        android:id="@+id/imageView2"
-                        android:layout_marginLeft="10dp"
-                        android:layout_width="wrap_content"
-                        android:layout_marginTop="5dp" />
-
-                    <TextView
-                        android:text="TextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/tvSelected"
-                        android:layout_weight="0.15"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                        android:layout_marginLeft="20dp" />
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:srcCompat="@android:drawable/ic_menu_edit"
-                        android:id="@+id/imageView3"
-                        android:layout_marginRight="15dp" />
-                </LinearLayout>
-            </android.support.v7.widget.Toolbar>
-
-            <android.support.v7.widget.RecyclerView
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/selectedList" />
+                android:id="@+id/libraryLO"
+                android:visibility="visible">
+
+                <android.support.design.widget.TabLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:id="@+id/tab"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true" />
+
+
+                <android.support.v4.view.ViewPager
+                    android:layout_width="match_parent"
+                    android:id="@+id/viewPager"
+                    android:layout_below="@id/tab"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/detailLO"
+                android:visibility="gone">
+
+                <android.support.v7.widget.Toolbar
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/colorPrimary"
+                    android:theme="?attr/actionBarTheme"
+                    android:minHeight="?attr/actionBarSize"
+                    android:id="@+id/detailToolbar"
+                    android:paddingLeft="0dp"
+                    android:paddingRight="0dp">
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <ImageView
+                            android:layout_height="wrap_content"
+                            app:srcCompat="?attr/actionModeCloseDrawable"
+                            android:id="@+id/imageView2"
+                            android:layout_marginLeft="10dp"
+                            android:layout_width="wrap_content"
+                            android:layout_marginTop="5dp" />
+
+                        <TextView
+                            android:text="TextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/tvSelected"
+                            android:layout_weight="0.15"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                            android:layout_marginLeft="20dp" />
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:srcCompat="@android:drawable/ic_menu_edit"
+                            android:id="@+id/imageView3"
+                            android:layout_marginRight="15dp" />
+                    </LinearLayout>
+                </android.support.v7.widget.Toolbar>
+
+                <android.support.v7.widget.RecyclerView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/selectedList" />
+            </LinearLayout>
+
         </LinearLayout>
 
-    </LinearLayout>
+    </RelativeLayout>
+
+    <!--툴바 아래에 컨텐츠 영역-->
+    <!--<include layout="@layout/content_main" />-->
+
+    <SeekBar
+        android:id="@+id/volSeekBar"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+
+        android:layout_above="@+id/playerLo"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="30dp"
+        android:rotation="270"
+        android:visibility="gone" />
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
@@ -185,7 +205,7 @@
             android:layout_marginRight="8dp"
             app:layout_constraintBottom_toBottomOf="@+id/seekBar_player" />
 
-        <TextView
+        <choongyul.android.com.soundplayer.SlideOutView
             android:text="TextView"
             android:layout_width="96dp"
             android:layout_height="21dp"
@@ -194,7 +214,8 @@
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
             app:layout_constraintBottom_toTopOf="@+id/seekBar_player"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="8dp"
+            app:strike_color="#ff0000"/>
 
         <TextView
             android:id="@+id/tvThick_player"
@@ -203,6 +224,9 @@
             android:layout_marginBottom="5dp"
             android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp"
+            android:ellipsize="marquee"
+            android:gravity="center"
+            android:singleLine="true"
             android:text="TextView"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:textSize="16sp"
