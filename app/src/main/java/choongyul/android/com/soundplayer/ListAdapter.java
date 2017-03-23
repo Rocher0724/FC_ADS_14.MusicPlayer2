@@ -29,13 +29,14 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     private int item_layout_id;
     Context context;
     Server server = Server.getInstance();
+    MainActivity mainActivity ;
 
 
 
     public ListAdapter(List<?> datas, String flag, Context context) {
         this.context = context;
         this.datas = datas;
-
+        this.mainActivity = (MainActivity) context;
 
 
         this.flag = flag;
@@ -88,19 +89,12 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         int position;
 
 
-
-//        new Student(server, "박유석");
-
         // 컨스트레인트
         ConstraintLayout box;
         ImageView imgView;
         TextView tvThick;
         TextView tvThin;
 
-        // 플레이어 - 메인에서 해줘야하지않나 이거
-//        ImageView imgAlbum_player;
-//        TextView tvThick_player;
-//        TextView tvThin_player;
 
 
 
@@ -110,12 +104,6 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
             box = (ConstraintLayout) view.findViewById(R.id.list_item);
 
             switch (flag) {
-                case ListFragment.TYPE_SONG:
-                    Log.e("ListAdapter", "viewHolder - song 내부 ");
-                    tvThick = (TextView) view.findViewById(R.id.tvThick_list);
-                    tvThin = (TextView) view.findViewById(R.id.tvThin_list);
-                    imgView = (ImageView) view.findViewById(R.id.imgAlbum_list);
-                    break;
                 case ListFragment.TYPE_ALBUM:
                     Log.e("ListAdapter", "viewHolder - album 내부 ");
 
@@ -123,20 +111,40 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
                     tvThin = (TextView) view.findViewById(R.id.tvNumOfTracks_album);
                     imgView = (ImageView) view.findViewById(R.id.imgAlbum_album);
                     break;
+                case ListFragment.TYPE_SONG:
+                    Log.e("ListAdapter", "viewHolder - song 내부 ");
+                    tvThick = (TextView) view.findViewById(R.id.tvThick_list);
+                    tvThin = (TextView) view.findViewById(R.id.tvThin_list);
+                    imgView = (ImageView) view.findViewById(R.id.imgAlbum_list);
+                    break;
+                case ListFragment.TYPE_ARTIST:
+                    Log.e("ListAdapter", "viewHolder - album 내부 ");
+                    tvThick = (TextView) view.findViewById(R.id.tvThick_list);
+                    tvThin = (TextView) view.findViewById(R.id.tvThin_list);
+                    imgView = (ImageView) view.findViewById(R.id.imgAlbum_list);
+                    break;
             }
 
             box.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Log.e("ListAdapter", "box를 클릭했다. ");
+                    switch (flag) {
+                        case ListFragment.TYPE_SONG:
+                            server.sendMessage(position, datas, flag);
+                            break;
+                        case ListFragment.TYPE_ALBUM:
+                        case ListFragment.TYPE_ARTIST:
+                        case ListFragment.TYPE_GENRE:
 
-                    server.sendMessage(position, datas, flag); // 플래그를 서버에 옮길 필요까지는 없는것 같다.
+                            mainActivity.setDetailLO(datas, flag);
+                            break;
+                    }
+
                 }
             });
         }
-
-
-
     }
+
 }
 

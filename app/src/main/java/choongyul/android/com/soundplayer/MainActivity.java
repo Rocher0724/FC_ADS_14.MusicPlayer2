@@ -17,6 +17,8 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
@@ -35,6 +37,8 @@ import java.util.List;
 import choongyul.android.com.soundplayer.domain.Common;
 import choongyul.android.com.soundplayer.util.TimeUtil;
 import choongyul.android.com.soundplayer.util.fragment.PagerAdapter;
+
+import static android.view.View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static choongyul.android.com.soundplayer.App.ACTION_NEXT;
@@ -64,7 +68,7 @@ public class MainActivity extends AppCompatActivity
     LinearLayout detailLO;
     ImageView imgAlbum_player, imgPlay_player, imgff_player, imgVol_player;
     TextView tvThick_Player, tvDurationNow_player, tvDurationMax;
-    SlideOutView tvThin_Player;
+    TextView tvThin_Player;
     SeekBar seekBar_player;
     SeekBar volSeekBar;
     // 음악데이터
@@ -74,6 +78,7 @@ public class MainActivity extends AppCompatActivity
     Intent service;
     String list_type = "";
     Handler handler;
+    RecyclerView detailRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +103,7 @@ public class MainActivity extends AppCompatActivity
         imgff_player = (ImageView) findViewById(R.id.imgff_player);
         imgVol_player = (ImageView) findViewById(R.id.imgVol_player);
         tvThick_Player = (TextView) findViewById(R.id.tvThick_player);
-        tvThin_Player = (SlideOutView) findViewById(R.id.tvThin_player);
+        tvThin_Player = (TextView) findViewById(R.id.tvThin_player);
         tvDurationNow_player = (TextView) findViewById(R.id.tvDurationNow_player);
         tvDurationMax = (TextView) findViewById(R.id.tvDurationMax_player);
         seekBar_player = (SeekBar) findViewById(R.id.seekBar_player);
@@ -114,14 +119,8 @@ public class MainActivity extends AppCompatActivity
         // 서비스 설정
         service = new Intent(this, SoundService.class);
 
-        // 옵저버 패턴을 위한 서버설정
-//        this.server = server;
-//        this.name = name;
-//        server.addObserver(this);
-
         // 툴바 가져오기
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        toolbar.setTitleTextColor(Color.BLACK);
         setSupportActionBar(toolbar);
 
         // 네비게이션 드로워 설정
@@ -154,9 +153,10 @@ public class MainActivity extends AppCompatActivity
         adapter = new PagerAdapter(getSupportFragmentManager());
 
         // 프래그먼트 초기화
-        adapter.add(ListFragment.newInstance(1,ListFragment.TYPE_SONG));
+
         adapter.add(ListFragment.newInstance(2,ListFragment.TYPE_ALBUM));
-//        adapter.add(new OneFragment());
+        adapter.add(ListFragment.newInstance(1,ListFragment.TYPE_SONG));
+        adapter.add(ListFragment.newInstance(1,ListFragment.TYPE_ARTIST));
 //        adapter.add(new TwoFragment());
         adapter.add(new ThreeFragment());
         adapter.add(new FourFragment());
@@ -192,8 +192,14 @@ public class MainActivity extends AppCompatActivity
 
         switch (id) {
             case R.id.action_sort:
-                libraryLO.setVisibility(VISIBLE);
-                detailLO.setVisibility(GONE);
+                if( libraryLO.getVisibility() == VISIBLE ) {
+                    libraryLO.setVisibility(GONE);
+                    detailLO.setVisibility(VISIBLE);
+                } else {
+                    libraryLO.setVisibility(VISIBLE);
+                    detailLO.setVisibility(GONE);
+                }
+
                 Toast.makeText(this, "search ins Selected!!", Toast.LENGTH_SHORT).show();
 
                 return true;
@@ -277,17 +283,6 @@ public class MainActivity extends AppCompatActivity
     private void initPlayer() {
         // 서비스로 이관
 
-
-//        Uri musicUri = ((Common) datas.get(position)).getMusic_uri();
-//        player = MediaPlayer.create(this, musicUri); // 시스템파일 - context, 음원파일Uri . player를 최초 실행시키는 방법이다.
-//        player.setLooping(false);
-        // 미디어 플레이어에 완료체크 리스너를 등록한다. Todo 일단 재생만 하려고 뺴놨다
-//        player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-//            @Override
-//            public void onCompletion(MediaPlayer mp) {
-//                nextMusic();
-//            }
-//        });
     }
 
     private void initController() {
@@ -324,9 +319,6 @@ public class MainActivity extends AppCompatActivity
                     break;
                 case R.id.imgVol_player:
                     musicVolChange();
-                    break;
-                case R.id.tvThin_player:
-                    ((SlideOutView)v).strike(true);
                     break;
             }
         }
@@ -386,16 +378,6 @@ public class MainActivity extends AppCompatActivity
         Log.e("MainActivity", " 새로운 음악 시작을 위해 서비스로 출발");
     }
 
-//    private void playRestart() {
-//        Intent intent = new Intent(this, SoundService.class);
-//        intent.setAction(ACTION_RESTART);
-//        intent.putExtra(ARG_POSITION, position);
-//        intent.putExtra(ARG_LIST_TYPE,list_type);
-//        playStatus = ACTION_RESTART;
-//        startService(intent);
-//        Log.e("MainActivity", " 새로운 음악 시작을 위해 서비스로 출발");
-//    }
-
 
     private void playPause() {
         Intent intent = new Intent(this, SoundService.class);
@@ -416,9 +398,14 @@ public class MainActivity extends AppCompatActivity
     public void onBackPressed() {
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
+        } else if( libraryLO.getVisibility() == GONE ) {
+            libraryLO.setVisibility(VISIBLE);
+            detailLO.setVisibility(GONE);
         } else {
             super.onBackPressed();
         }
+
+
     }
 
     // seekbar를 이동하면 미디어가 이동하도록 변경
@@ -443,6 +430,17 @@ public class MainActivity extends AppCompatActivity
             }
         }
     };
+
+    public void setDetailLO(List<?> datas, String flag) {
+        libraryLO.setVisibility(View.GONE);
+        detailLO.setVisibility(View.VISIBLE);
+
+        detailRecyclerView = (RecyclerView) findViewById(R.id.selectedList);
+        DetailListAdapter detailListAdapter = new DetailListAdapter(datas, this, flag);
+        detailRecyclerView.setAdapter(detailListAdapter);
+        detailRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+    }
 
 
 

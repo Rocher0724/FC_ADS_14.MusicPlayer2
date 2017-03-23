@@ -21,7 +21,6 @@ public class Artist extends Common {
     private String number_of_tracks;
 
     private String number_of_albums;
-    public List<Music> musics;
     private String album_id;
     private Uri album_image_uri;
     private Uri music_uri;

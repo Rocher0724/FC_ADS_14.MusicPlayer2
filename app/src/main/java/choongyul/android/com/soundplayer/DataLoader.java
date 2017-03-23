@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import choongyul.android.com.soundplayer.domain.Album;
 import choongyul.android.com.soundplayer.domain.Artist;
 import choongyul.android.com.soundplayer.domain.Music;
 
@@ -43,6 +44,7 @@ public class DataLoader {
     //datas는 전역에서 사용되므로 static으로 빼고싶다. 이런경우 public 까지 주지는 않고 get함수를 public static을 선언해준다.
     // datas를 두개의 activity에서 공유하기 위해 static으로 변경
     private static List<Music> musicDatas = new ArrayList<>();
+    private static List<Album> albumDatas = new ArrayList<>();
     private static List<Artist> artistDatas = new ArrayList<>();
 
     // static 변수인 data 를 체크해서 null이면 load를 실행
@@ -58,6 +60,13 @@ public class DataLoader {
             loadArtist(context);
         }
         return artistDatas;
+    }
+
+    public static List<Album> getAlbumDatas(Context context) {
+        if (albumDatas == null || albumDatas.size() == 0) {
+            loadAlbum(context);
+        }
+        return albumDatas;
     }
 
     // load는 외부에서 호출될일이 없고 get함수를 통해서만 접근된다.
@@ -139,6 +148,59 @@ public class DataLoader {
         }
 
     }
+
+
+    private static void loadAlbum (Context context) {
+
+        final Uri URI = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+
+        // 3. 데이터에서 가져올 데이터 컬럼명을 정의한다.
+        // 데이터 컬럼명은 Content URI의 패키지에 들어있다.
+        String PROJ[] = {
+                MediaStore.Audio.Media.ALBUM            // 0
+                ,MediaStore.Audio.Media.ALBUM_ID        // 1
+                ,MediaStore.Audio.Media.TITLE           // 2
+                ,MediaStore.Audio.Media.ARTIST          // 3
+                ,MediaStore.Audio.Media.ARTIST_ID       // 4
+                ,MediaStore.Audio.Media.ARTIST_KEY      // 5
+                ,MediaStore.Audio.Media.DURATION        // 6
+                ,MediaStore.Audio.Media._ID};           // 7
+
+        // 1. 주소록에 접근하기 위해 ContentResolver를 불러온다.
+        ContentResolver resolver = context.getContentResolver();
+
+        // 4. Content Resolver 로 불러온(쿼리한) 데이터를 커서에 담는다.
+        // 데이터 URI : MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+        Cursor cursor = resolver.query(URI, PROJ, null, null, null);
+
+        if( cursor != null) {
+            // 5. 커서에 넘어온 데이터가 있다면 반복문을 돌면서 datas에 담아준다.
+            while ( cursor.moveToNext() ) {
+                Album album = new Album();
+
+                album.setAlbum      (getString(cursor, PROJ[0]));
+                album.setAlbum_id   (getString(cursor, PROJ[1]));
+                album.setTitle      (getString(cursor, PROJ[2]));
+                album.setArtist     (getString(cursor, PROJ[3]));
+                album.setArtist_id  (getString(cursor, PROJ[4]));
+                album.setArtist_key (getString(cursor, PROJ[5]));
+                album.setDuration   (getString(cursor, PROJ[6]));
+                album.setId         (getString(cursor, PROJ[7]));
+
+                album.setAlbum_image_uri(getAlbumImageUri(album.getAlbum_id()));
+                album.setMusic_uri(getMusicUri(album.getId()));
+
+                albumDatas.add(album);
+            }
+            // * 중요 : 사용 후 close를 호출하지 않으면 메모리 누수가 발생할 수 있다.
+            cursor.close();
+        }
+    }
+
+
+
+
+
 
     private static String getGenre() {
 //        MediaStore.Audio.Genres.getContentUriForAudioId();

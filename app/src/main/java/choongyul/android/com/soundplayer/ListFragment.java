@@ -58,6 +58,8 @@ public class ListFragment extends Fragment {
             if(TYPE_SONG.equals(mListType))
                 datas = DataLoader.getMusicDatas(getContext());
             else if(TYPE_ALBUM.equals(mListType))
+                datas = DataLoader.getAlbumDatas(getContext());
+            else if(TYPE_ARTIST.equals(mListType))
                 datas = DataLoader.getArtistDatas(getContext());
         }
     }
@@ -88,7 +90,6 @@ public class ListFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-
     }
 
     @Override
